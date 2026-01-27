@@ -1,23 +1,27 @@
+## 📌 Steps
 
-# Steps:
+1. Created new components inside the `src/components/` folder.
 
-1. We created new components in the folder: `src/components/`.
+2. Added the following reusable UI components:
+   - `Button.jsx` *(ButtonBasic)*
+   - `TextField.jsx` *(TextFieldBasic)*
+   - `Select.jsx` *(SelectBasic)*
+   - `Rating.jsx` *(RatingBasic)*
+   - `Checkbox.jsx` *(CheckboxBasic)*
 
-2. The following components were added:
-	- `Button.jsx` (ButtonBasic)
-	- `TextField.jsx` (TextFieldBasic)
-	- `Select.jsx` (SelectBasic)
-	- `Rating.jsx` (RatingBasic)
-	- `Checkbox.jsx` (CheckboxBasic)
+3. Component usage across the application:
+   - `Home.jsx` uses:
+     - `ButtonBasic`
+     - `TextFieldBasic`
+     - `SelectBasic`
+   - `RatingBasic` and `CheckboxBasic` can be imported and used in any component as required.
 
-3. These components are used in other components:
-	- `Home.jsx` uses: ButtonBasic, TextFieldBasic, SelectBasic
-	- You can import and use RatingBasic and CheckboxBasic in any component as needed.
+---
 
-# Learning Outcomes
+## 🎯 Learning Outcomes
 
-1. Understand how to create and use React components.
-2. Learnt about different variants of buttons, textfield and other components of mui.
-3. Create simple routing app with different types of components.
-4. Gain experience with basic UI styling in React.
-5. Learn to document and explain project structure simply.
+1. Understand how to create and reuse React components.
+2. Learn different variants of **Material UI** components such as buttons, text fields, selects, ratings, and checkboxes.
+3. Build a simple routing-based React application using multiple components.
+4. Gain hands-on experience with basic UI styling in React.
+5. Learn to document and explain project structure clearly.
