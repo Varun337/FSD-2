@@ -6,13 +6,12 @@ This experiment demonstrates how to build a **Login Form** using **React (Vite)*
 ---
 
 ## 🎯 Learning Outcomes
-After completing this experiment, the learner will be able to:
-
-1. Understand and implement **controlled components** in React using the `useState` hook.
-2. Apply **form validation techniques** using both HTML5 validation and custom validation logic.
-3. Integrate **Material UI components** such as TextField, Button, Checkbox, and Radio for building forms.
-4. Manage and display **error messages dynamically** based on user input.
-5. Design a **responsive and visually appealing UI** using CSS along with React components.
+1.After completing this experiment, the learner will be able to:
+2.Gained a clear understanding of controlled components in React by managing form inputs using the useState hook.
+3.Learned to implement form validation using built-in HTML5 attributes as well as custom validation logic for better input control.
+4.Practiced using Material UI components such as TextField, Button, Checkbox, and Radio to create structured and user-friendly forms.
+5.Successfully handled and displayed error messages dynamically, improving user feedback based on real-time input.
+6.Designed a responsive and visually appealing user interface by combining CSS styling with React components.
 
 ---
 
