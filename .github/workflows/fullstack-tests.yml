@@ -1,0 +1,43 @@
+name: Fullstack Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ✅ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 🔹 BACKEND (Python)
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Backend Dependencies
+        run: pip install flask pytest
+
+      - name: Run Backend Tests
+        run: pytest TESTING/Backend
+
+      # 🔹 FRONTEND (Node)
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd TESTING/Frontend
+          npm install
+
+      - name: Run Frontend Tests
+        run: |
+          cd TESTING/Frontend
+          npm test
