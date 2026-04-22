@@ -75,11 +75,11 @@ jobs:
       - name: Run linting
         run: npm run lint
 
+      - name: Run tests
+        run: npm test
+
       - name: Build frontend
         run: npm run build
-
-      - name: Run tests
-        run: npm test -- --watchAll=false
 
   # Backend Build and Push
   build-backend:
