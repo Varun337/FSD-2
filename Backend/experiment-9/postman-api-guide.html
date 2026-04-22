@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Postman API Testing Guide — Experiment 9</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 32px 36px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        header .badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #e94560;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 14px;
+        }
+
+        .users-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            border-left: 4px solid #e94560;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .users-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #e94560;
+            margin-bottom: 12px;
+        }
+
+        .users-box table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .users-box th {
+            text-align: left;
+            padding: 6px 12px;
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .users-box td {
+            padding: 8px 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background: #f0f4ff;
+            color: #0f3460;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .section-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .color-green {
+            background: #e6f9f0;
+            color: #1a9e5c;
+        }
+
+        .color-blue {
+            background: #e6f0ff;
+            color: #1a5ce9;
+        }
+
+        .color-orange {
+            background: #fff4e6;
+            color: #e97b1a;
+        }
+
+        .color-purple {
+            background: #f4e6ff;
+            color: #7b1ae9;
+        }
+
+        .section-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .method-badge {
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-left: auto;
+        }
+
+        .get {
+            background: #e6f9f0;
+            color: #1a9e5c;
+        }
+
+        .post {
+            background: #fff4e6;
+            color: #e97b1a;
+        }
+
+        .endpoint-url {
+            padding: 10px 24px 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #0f3460;
+            background: #f8faff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .request-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .request-table th {
+            text-align: left;
+            padding: 10px 24px;
+            background: #fafafa;
+            font-size: 12px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .request-table td {
+            padding: 10px 24px;
+            border-bottom: 1px solid #f8f8f8;
+            vertical-align: top;
+        }
+
+        .request-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .key-col {
+            font-weight: 600;
+            color: #444;
+            width: 200px;
+        }
+
+        .step-label {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .step-label.step1 {
+            background: #e6f0ff;
+            color: #1a5ce9;
+        }
+
+        .step-label.step2 {
+            background: #e6f9f0;
+            color: #1a9e5c;
+        }
+
+        .step-block {
+            padding: 16px 24px;
+        }
+
+        .step-block+.step-block {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .json-body {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            background: #1a1a2e;
+            color: #c9d1d9;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-top: 8px;
+            white-space: pre;
+            line-height: 1.6;
+        }
+
+        .json-key {
+            color: #79b8ff;
+        }
+
+        .json-value {
+            color: #9ecbff;
+        }
+
+        .tip {
+            background: linear-gradient(135deg, #fff9e6, #fffdf5);
+            border: 1px solid #ffd666;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 13px;
+            margin-top: 28px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .tip-icon {
+            font-size: 18px;
+        }
+
+        footer {
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 32px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 20px;
+            }
+
+            .section {
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="badge">Experiment 9</div>
+        <h1>Postman API Testing Guide</h1>
+        <p>Flask Authentication Methods — Basic Auth · Token Auth · JWT Auth</p>
+        <p style="margin-top:8px;font-family:'Fira Code',monospace;font-size:13px;color:rgba(255,255,255,0.5);">Base
+            URL: http://localhost:5000</p>
+    </header>
+
+    <!-- Test Users -->
+    <div class="users-box">
+        <h3>👤 Test Users</h3>
+        <table>
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Role</th>
+            </tr>
+            <tr>
+                <td><code>admin</code></td>
+                <td><code>admin123</code></td>
+                <td>Admin</td>
+            </tr>
+            <tr>
+                <td><code>john</code></td>
+                <td><code>john123</code></td>
+                <td>User</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 1. Health Check -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number color-green">1</div>
+            <h2>Health Check</h2>
+            <span class="method-badge get">GET</span>
+        </div>
+        <div class="endpoint-url">http://localhost:5000/</div>
+        <table class="request-table">
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td class="key-col">Auth</td>
+                <td>None required</td>
+            </tr>
+            <tr>
+                <td class="key-col">Expected Response</td>
+                <td><code>200 OK</code> — Lists all available routes</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 2. Basic Auth -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number color-blue">2</div>
+            <h2>Basic Authentication</h2>
+            <span class="method-badge get">GET</span>
+        </div>
+        <div class="endpoint-url">http://localhost:5000/basic-protected</div>
+        <table class="request-table">
+            <tr>
+                <th>Field</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td class="key-col">Method</td>
+                <td>GET</td>
+            </tr>
+            <tr>
+                <td class="key-col">Auth Tab → Type</td>
+                <td><strong>Basic Auth</strong></td>
+            </tr>
+            <tr>
+                <td class="key-col">Username</td>
+                <td><code>admin</code></td>
+            </tr>
+            <tr>
+                <td class="key-col">Password</td>
+                <td><code>admin123</code></td>
+            </tr>
+            <tr>
+                <td class="key-col">Expected Response</td>
+                <td><code>200</code> — "Basic Auth Success. Welcome admin!"</td>
+            </tr>
+            <tr>
+                <td class="key-col">Failure Response</td>
+                <td><code>401</code> — "Invalid credentials"</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 3. Token Auth -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number color-orange">3</div>
+            <h2>Simple Token Authentication</h2>
+            <span style="margin-left:auto;font-size:12px;color:#888;font-weight:600;">2 Steps</span>
+        </div>
+
+        <div class="step-block">
+            <span class="step-label step1">Step 1 — Get Token</span>
+            <table class="request-table" style="margin-top:0">
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td class="key-col">Method</td>
+                    <td><span class="method-badge post">POST</span></td>
+                </tr>
+                <tr>
+                    <td class="key-col">URL</td>
+                    <td><code>http://localhost:5000/token-login</code></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Body → raw → JSON</td>
+                    <td>
+                        <div class="json-body"><span class="json-key">"username"</span>: <span
+                                class="json-value">"admin"</span>,
+                            <span class="json-key">"password"</span>: <span class="json-value">"admin123"</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="key-col">Response</td>
+                    <td><code>{"token": "YWRtaW4="}</code> — Copy this token!</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step-block">
+            <span class="step-label step2">Step 2 — Use Token</span>
+            <table class="request-table" style="margin-top:0">
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td class="key-col">Method</td>
+                    <td><span class="method-badge get">GET</span></td>
+                </tr>
+                <tr>
+                    <td class="key-col">URL</td>
+                    <td><code>http://localhost:5000/token-protected</code></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Headers</td>
+                    <td>Key: <code>x-auth-token</code> &nbsp;→&nbsp; Value: <em>(paste your token)</em></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Expected Response</td>
+                    <td><code>200</code> — "Token Auth Success. Welcome admin!"</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- 4. JWT Auth -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-number color-purple">4</div>
+            <h2>JWT Authentication</h2>
+            <span style="margin-left:auto;font-size:12px;color:#888;font-weight:600;">2 Steps</span>
+        </div>
+
+        <div class="step-block">
+            <span class="step-label step1">Step 1 — Get JWT Token</span>
+            <table class="request-table" style="margin-top:0">
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td class="key-col">Method</td>
+                    <td><span class="method-badge post">POST</span></td>
+                </tr>
+                <tr>
+                    <td class="key-col">URL</td>
+                    <td><code>http://localhost:5000/jwt-login</code></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Body → raw → JSON</td>
+                    <td>
+                        <div class="json-body"><span class="json-key">"username"</span>: <span
+                                class="json-value">"admin"</span>,
+                            <span class="json-key">"password"</span>: <span class="json-value">"admin123"</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="key-col">Response</td>
+                    <td><code>{"access_token": "eyJ0eX..."}</code> — Copy this token!</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="step-block">
+            <span class="step-label step2">Step 2 — Use JWT Token</span>
+            <table class="request-table" style="margin-top:0">
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td class="key-col">Method</td>
+                    <td><span class="method-badge get">GET</span></td>
+                </tr>
+                <tr>
+                    <td class="key-col">URL</td>
+                    <td><code>http://localhost:5000/jwt-protected</code></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Auth Tab → Type</td>
+                    <td><strong>Bearer Token</strong></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Token</td>
+                    <td><em>(paste your access_token)</em></td>
+                </tr>
+                <tr>
+                    <td class="key-col">Expected Response</td>
+                    <td><code>200</code> — "JWT Auth Success. Welcome admin!"</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="tip">
+        <span class="tip-icon">💡</span>
+        <div><strong>Pro Tip:</strong> Save each request in a <strong>Postman Collection</strong> ("Save As" each
+            request) to reuse them anytime. You can also export the collection to share it with teammates.</div>
+    </div>
+
+    <footer>
+        <p style="margin-top:24px;">Experiment 9 · Flask Authentication Methods · Made by Chinmay</p>
+    </footer>
+
+</body>
+
+</html>

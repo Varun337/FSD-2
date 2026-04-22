@@ -1,43 +1,197 @@
-name: Fullstack Tests
+name: Exp-20 CI/CD Pipeline
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'Exp-20/**'
+      - '.github/workflows/fullstack-tests.yml'
   pull_request:
+    branches: [ main ]
+    paths:
+      - 'Exp-20/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  test:
+  # Backend Testing Job
+  backend-test:
+    name: Backend Tests
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: Exp-20/Backend
+
     steps:
-      # ✅ Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 🔹 BACKEND (Python)
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install Backend Dependencies
-        run: pip install flask pytest
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
 
-      - name: Run Backend Tests
-        run: pytest TESTING/Backend
+      - name: Run backend tests
+        run: |
+          source venv/bin/activate
+          python -m pytest test_app.py -v
 
-      # 🔹 FRONTEND (Node)
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  # Frontend Testing Job
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Exp-20/Frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install Frontend Dependencies
-        run: |
-          cd TESTING/Frontend
-          npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run Frontend Tests
-        run: |
-          cd TESTING/Frontend
-          npm test
+      - name: Run linting
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Run tests
+        run: npm test -- --watchAll=false
+
+  # Backend Build and Push
+  build-backend:
+    name: Build Backend Docker Image
+    needs: backend-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./Exp-20/Backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Frontend Build and Push
+  build-frontend:
+    name: Build Frontend Docker Image
+    needs: frontend-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./Exp-20/Frontend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Security Scanning
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'Exp-20'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
